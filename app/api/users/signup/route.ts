@@ -1,51 +1,29 @@
-import { NextResponse, NextRequest } from "next/server";
-import { connect } from "../../../../database/db-connection";
+import { connect } from "@/database/db-connection";
 import User from "@/models/usermode";
+import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
 
 connect();
 
 export async function POST(req: NextRequest) {
-  try {
-    // Parse the request body
-    const body = await req.json();
-    const { username, email, password } = body;
+    try {
+        const body = await req.json(); 
+        const { username, email, password } = body;
+        let user = await User.findOne({email});
+        if(user)
+            return NextResponse.json({error:"User already exists"}, {status:400});
+        
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(password,salt);
+        user = await User.create({
+            username,
+            email,
+            password:hashedPassword,
+        });
 
-    // Validate fields
-    if (!username || !email || !password) {
-      return NextResponse.json(
-        { message: "All fields (username, email, password) are required." },
-        { status: 400 }
-      );
+        return NextResponse.json({message:"User registered successfully!"}, {status:201});
+        
+    } catch (error:any) {
+        return NextResponse.json({error:error.message}, {status:500});
     }
-
-    // Check if the user already exists
-    let user = await User.findOne({ email });
-    if (user) {
-      return NextResponse.json(
-        { message: "User already exists." },
-        { status: 400 }
-      );
-    }
-
-    // Hash password and create user
-    const hashedPassword = await bcryptjs.hash(password, 10);
-    user = await User.create({
-      username,
-      email,
-      password: hashedPassword,
-    });
-
-    return NextResponse.json(
-      { message: "User registered successfully." },
-      { status: 200 }
-    );
-  } catch (_error) {
-    return NextResponse.json(
-      {
-        message: "Internal Server Error",
-      },
-      { status: 500 }
-    );
-  }
 }

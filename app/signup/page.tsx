@@ -1,123 +1,77 @@
 "use client";
-import { useState } from "react";
+import axios from 'axios';
+import Link from 'next/link'
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from "next/link";
-import toast from "react-hot-toast";
+import toast from 'react-hot-toast';
 
-const SignupPage: React.FC = () => {
-  const router = useRouter();
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await fetch("/api/users/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      const result = await response.json();
-      toast.success(result.message || "Signup successful!");
-      router.push("/login");
-    } catch (_error) {
-      // Handle unexpected errors
-      toast.error("Something went wrong. Please try again later.");
+const SignupPage = () => {
+    const router = useRouter();
+    const [user, setUser] = useState({
+        username:"",
+        email: "",  
+        password: "",
+    })
+    const [disable, setDisable] = useState(true);
+     
+    const submitHandler = async () =>{
+        try {
+            const res = await axios.post("/api/users/signup", user);
+            router.push("/login");
+            console.log(res);
+            toast.success(res.data.message)
+        } catch (error:any) {
+            console.log(error);
+            toast.error(error.response.data.message);  
+        }
     }
-  };
 
-  // Check if any input field is empty
-  const isFormInvalid = !formData.username || !formData.email || !formData.password;
+    useEffect(() => {
+        if (user.username.length > 0 && user.email.length > 0 && user.password.length > 0) {
+            setDisable(false);
+        } else {
+            setDisable(true);
+        }
+    }, [user])
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-4 text-gray-800">Sign Up</h1>
-        <form onSubmit={handleSubmit}>
-          {/* Username Field */}
-          <div className="mb-4">
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="Enter your username"
-              required
-            />
-          </div>
+    return (
+        <div className='flex bg-[#669bbc] min-h-screen justify-center items-center'>
+            <div className='bg-white p-10 rounded-lg shadow-lg'>
+                <h1 className='font-bold'>SIGNUP</h1>
 
-          {/* Email Field */}
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
+                <div className='flex flex-col my-4'>
+                    <label>Username</label>
+                    <input
+                        type="text"
+                        value={user.username}
+                        onChange={(e) => setUser({ ...user, username: e.target.value })}
+                        className='border-2 outline-none border-zinc-600 rounded-md px-2 py-1'
+                    />
+                </div>
+                <div className='flex flex-col my-4'>
+                    <label>Email</label>
+                    <input
+                        type="email"
+                        value={user.email}
+                        onChange={(e) => setUser({ ...user, email: e.target.value })}
+                        className='border-2 outline-none border-zinc-600 rounded-md px-2 py-1'
+                    />
+                </div>
+                <div className='flex flex-col my-4'>
+                    <label>Password</label>
+                    <input
+                        type="password"
+                        value={user.password}
+                        onChange={(e) => setUser({ ...user, password: e.target.value })}
+                        className='border-2 outline-none border-zinc-600 rounded-md px-2 py-1'
+                    />
+                </div>
+                <button onClick={submitHandler} className={`${disable ? "bg-[#e3e3e3] cursor-not-allowed" : "bg-[#ff698f]"}  w-full py-1 my-2 rounded-md text-white`}>SIGNUP</button>
+                <p className='mt-4'>Already have an account <Link href={"/login"} className='font-bold'>LOGIN</Link> </p>
 
-          {/* Password Field */}
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="mt-1 block w-full p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
+            </div>
+        </div>
+    )
+}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isFormInvalid}
-            className={`w-full py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50 ${isFormInvalid
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-400"
-              }`}
-          >
-            Sign Up
-          </button>
-        </form>
-
-        {/* Login Link */}
-        <p className="text-sm text-gray-600 mt-4 text-center">
-          Already have an account?{" "}
-          <Link href="/login" className="text-blue-500 hover:underline">
-            Login
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
-};
-
-export default SignupPage;
+export default SignupPage
