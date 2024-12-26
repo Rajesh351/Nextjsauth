@@ -6,7 +6,7 @@ export async function GET() {
         res.cookies.set("token","",{httpOnly:true,expires:new Date(0)})
         return res;
 
-    } catch (error) {
+    } catch (_error) {
 
         return NextResponse.json(
             { message: "An error occurred while processing your request." },

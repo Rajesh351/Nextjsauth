@@ -16,7 +16,7 @@ const LoginPage: React.FC = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit =async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await fetch("/api/users/login", {
@@ -39,10 +39,8 @@ const LoginPage: React.FC = () => {
         toast.error(result.message || "login failed. Please try again.");
       }
 
-      console.log(result);
-    } catch (error) {
+    } catch (_error) {
       // Handle unexpected errors
-      console.error("Unexpected error:", error);
       toast.error("Something went wrong. Please try again later.");
     }
   };
@@ -91,8 +89,8 @@ const LoginPage: React.FC = () => {
             type="submit"
             disabled={isFormInvalid}
             className={`w-full py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50 ${isFormInvalid
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-400"
+              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-400"
               }`}
           >
             Login

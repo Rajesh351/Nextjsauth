@@ -27,23 +27,11 @@ const SignupPage: React.FC = () => {
         },
         body: JSON.stringify(formData),
       });
-
       const result = await response.json();
-
-      if (response.ok) {
-        // Show success toast
-        toast.success(result.message || "Signup successful!");
-        // Redirect to login page
-        router.push("/login");
-      } else {
-        // Show error toast
-        toast.error(result.message || "Signup failed. Please try again.");
-      }
-
-      console.log(result);
-    } catch (error) {
+      toast.success(result.message || "Signup successful!");
+      router.push("/login");
+    } catch (_error) {
       // Handle unexpected errors
-      console.error("Unexpected error:", error);
       toast.error("Something went wrong. Please try again later.");
     }
   };
