@@ -40,10 +40,12 @@ export async function POST(req: NextRequest) {
       { message: "User registered successfully." },
       { status: 200 }
     );
-  } catch (err: any) {
-    console.error("Error processing request:", err.message);
+  } catch (error) {
     return NextResponse.json(
-      { message: "Internal Server Error", error: err.message },
+      {
+        message: "Internal Server Error",
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }

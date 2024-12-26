@@ -65,10 +65,8 @@ export async function POST(req: NextRequest) {
 
     // Set the token as a secure, HTTP-only cookie
     response.cookies.set("token", token, { httpOnly: true, });
-     console.log
     return response;
   } catch (err: any) {
-    console.error("Error processing login request:", err.message);
     return NextResponse.json(
       { message: "An error occurred while processing your request." },
       { status: 500 }
